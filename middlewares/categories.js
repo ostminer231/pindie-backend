@@ -33,6 +33,27 @@ const findCategoryById = async (req, res, next) => {
   }
 };
 
+const updateCategory = async (req, res, next) => {
+  try {
+      // В метод передаём id из параметров запроса и объект с новыми свойствами
+    req.category = await categories.findByIdAndUpdate(req.params.id, req.body);
+    next();
+  } catch (error) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Ошибка обновления категории" }));
+  }
+};
+
+const deleteCategory = async (req, res, next) => {
+  try {
+    // Методом findByIdAndDelete по id находим и удаляем документ из базы данных
+    req.category = await categories.findByIdAndDelete(req.params.id);
+    next();
+  } catch (error) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Ошибка удаления категории" }));
+  }
+};
 
 // Экспортируем функцию поиска всех категорий
-module.exports = { findAllCategories, createCategory, findCategoryById};
+module.exports = { findAllCategories, createCategory, findCategoryById, updateCategory, deleteCategory};
