@@ -9,14 +9,23 @@ const pagesRouter = require('./routes/pages');
 const cookieParser = require("cookie-parser");
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 connectToDatabase();
 
 app.use(cors({
   origin: 'http://localhost:3000',
-  methods: 'GET, POST, PUT, DELETE, OPTIONS',
-  allowedHeaders: 'Content-Type'
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Access-Control-Allow-Headers',
+    'Origin',
+    'Accept',
+    'X-Requested-With',
+    'Content-Type',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers',
+    'Authorization'
+  ]
 }));
 
 app.use(cookieParser());

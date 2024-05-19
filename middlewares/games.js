@@ -5,7 +5,7 @@ const games = require("../models/game");
 
 const findAllGames = async (req, res, next) => {
   // Поиск всех игр в проекте по заданной категории
-  if(req.query["categories.name"]) { 
+  if (req.query["categories.name"]) {
     req.gamesArray = await games.findGameByCategory(req.query["categories.name"]);
     next();
     return;
@@ -105,20 +105,20 @@ const checkIfCategoriesAvaliable = async (req, res, next) => {
 
 const checkIfUsersAreSafe = async (req, res, next) => {
   // Проверим, есть ли users в теле запроса
-if (!req.body.users) {
-  next();
-  return;
-}
-// Cверим, на сколько изменился массив пользователей в запросе
-// с актуальным значением пользователей в объекте game
-// Если больше чем на единицу, вернём статус ошибки 400 с сообщением
-if (req.body.users.length - 1 === req.game.users.length) {
-  next();
-  return;
-} else {
-  res.setHeader("Content-Type", "application/json");
-      res.status(400).send(JSON.stringify({ message: "Нельзя удалять пользователей или добавлять больше одного пользователя" }));
-}
+  if (!req.body.users) {
+    next();
+    return;
+  }
+  // Cверим, на сколько изменился массив пользователей в запросе
+  // с актуальным значением пользователей в объекте game
+  // Если больше чем на единицу, вернём статус ошибки 400 с сообщением
+  if (req.body.users.length - 1 === req.game.users.length) {
+    next();
+    return;
+  } else {
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Нельзя удалять пользователей или добавлять больше одного пользователя" }));
+  }
 };
 
 const checkIsGameExists = async (req, res, next) => {
@@ -136,5 +136,16 @@ const checkIsGameExists = async (req, res, next) => {
   }
 };
 
+const checkIsVoteRequest = async (req, res, next) => {
+  // Если в запросе присылают только поле users
+  if (Object.keys(req.body).length === 1 && req.body.users) {
+    if(req.isVoteRequest) {
+      next();
+      return;
+    } 
+  }
+  next();
+};
+
 // Экспортируем функцию поиска всех игр
-module.exports = { findAllGames, createGame, findGameById, updateGame, deleteGame, checkEmptyFields, checkIfCategoriesAvaliable, checkIfUsersAreSafe, checkIsGameExists};
+module.exports = { findAllGames, createGame, findGameById, updateGame, deleteGame, checkEmptyFields, checkIfCategoriesAvaliable, checkIfUsersAreSafe, checkIsGameExists, checkIsVoteRequest };
