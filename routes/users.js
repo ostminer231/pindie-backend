@@ -1,23 +1,42 @@
-// Создаём роут для запросов категорий 
-const usersRouter = require('express').Router();
+const express = require('express');
+const usersRouter = express.Router();
 
 // Импортируем вспомогательные функции
-const { findAllUsers, createUser, findUserById, updateUser, deleteUser} = require('../middlewares/users');
-const {sendAllUsers, sendUserCreated, sendUserById, sendUserUpdated, sendUserDeleted} = require('../controllers/users');
+const { findAllUsers, createUser, findUserById, updateUser, deleteUser, checkEmptyNameAndEmailAndPassword, checkEmptyNameAndEmail, filterPassword, checkIsUserExists, hashPassword } = require('../middlewares/users');
+const { sendAllUsers, sendUserCreated, sendUserById, sendUserUpdated, sendUserDeleted, sendMe } = require('../controllers/users');
+const { checkAuth } = require('../middlewares/auth');
 
-// Обрабатываем GET-запрос с роутом '/categories'
-usersRouter.get('/users', findAllUsers, sendAllUsers);
-usersRouter.post("/users", findAllUsers, createUser, sendUserCreated);
-usersRouter.get("/users/:id", findUserById, sendUserById);
+// Определение маршрутов
+usersRouter.get('/', findAllUsers, filterPassword, sendAllUsers);
+
+usersRouter.post(
+  "/",
+  findAllUsers,
+  checkIsUserExists,
+  checkEmptyNameAndEmailAndPassword,
+  checkAuth,
+  hashPassword,
+  createUser,
+  sendUserCreated
+);
+usersRouter.get('/:id', findUserById, filterPassword, sendUserById);
+
 usersRouter.put(
-    "/users/:id", // Слушаем запросы по эндпоинту
-    updateUser, // Обновляем запись в MongoDB
-    sendUserUpdated // Возвращаем ответ на клиент
-  ); 
+  "/:id",
+  checkEmptyNameAndEmail,
+  checkAuth,
+  updateUser,
+  sendUserUpdated
+);
 
 usersRouter.delete(
-  "/users/:id", // Слушаем запросы по эндпоинту
+  "/:id",
+  checkAuth,
   deleteUser,
-  sendUserDeleted // Тут будут функция удаления элементов из MongoDB и ответ клиенту
+  sendUserDeleted
 ); 
+
+usersRouter.get("/me", checkAuth, sendMe); 
+
+// Экспортируем роут для использования в приложении — app.js
 module.exports = usersRouter;

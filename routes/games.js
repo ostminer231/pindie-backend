@@ -1,24 +1,33 @@
-// Файл routes/games.js
+const express = require('express');
+const gamesRouter = express.Router();
 
-const gamesRouter = require('express').Router();
-
-const { findAllGames, createGame, findGameById, updateGame, deleteGame } = require('../middlewares/games');
+const { findAllGames, createGame, findGameById, updateGame, deleteGame, checkEmptyFields, checkIfUsersAreSafe, checkIfCategoriesAvaliable, checkIsGameExists } = require('../middlewares/games');
 const { sendAllGames, sendGameCreated, sendGameById, sendGameUpdated, sendGameDeleted } = require('../controllers/games');
+const { checkAuth } = require('../middlewares/auth');
 
-gamesRouter.get('/games', findAllGames, sendAllGames);
-gamesRouter.post("/games", findAllGames, createGame, sendGameCreated);
-gamesRouter.get("/games/:id", findGameById, sendGameById);
-gamesRouter.put(
-  "/games/:id", // Слушаем запросы по эндпоинту  
-  findGameById, // Шаг 1. Находим игру по id из запроса
-  // Шаг 2. Проверки, если нужны
-  updateGame, // Шаг 3. Обновляем запись с игрой
-  sendGameUpdated // Шаг 4. Возвращаем на клиент ответ с результатом обновления
+// Определение маршрутов
+gamesRouter.get('/', findAllGames, sendAllGames);
+
+gamesRouter.post('/', checkIsGameExists,
+  checkIfCategoriesAvaliable,
+  checkEmptyFields,
+  checkAuth,
+  createGame,
+  sendGameCreated
 );
-gamesRouter.delete(
-  "/games/:id", // Слушаем запросы по эндпоинту
-  deleteGame,
-  sendGameDeleted // Тут будут функция удаления элементов из MongoDB и ответ клиенту
-); 
+gamesRouter.get('/:id', findGameById, sendGameById);
+
+gamesRouter.put(
+  "/:id",
+  //checkIsVoteRequest,
+  checkIfUsersAreSafe,
+  checkIfCategoriesAvaliable,
+  checkEmptyFields,
+  checkAuth,
+  updateGame,
+  sendGameUpdated
+);
+
+gamesRouter.delete('/:id', checkAuth, findGameById, deleteGame, sendGameDeleted);
 
 module.exports = gamesRouter;
