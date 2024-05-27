@@ -13,8 +13,10 @@ const PORT = 3000;
 
 connectToDatabase();
 
+const allowedOrigins = ['http://localhost:3000', 'https://ostminer-frontend.nomoredomainswork.ru', 'https://ostminer.nomoredomainswork.ru'];
+
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: allowedOrigins,
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
   allowedHeaders: 'Content-Type',
   credentials: true
