@@ -11,7 +11,11 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, "some-secret-key", {
         expiresIn: 3600 // Токен истекает через час
       });
-      res.cookie('jwt', token, { httpOnly: true, maxAge: 3600 * 1000 }); // Сохранение токена в cookies
+      res.cookie('jwt', token, {
+        httpOnly: true,
+        maxAge: 3600 * 1000,
+        sameSite: 'Lax' // или 'None', если клиент и сервер на разных доменах
+      });
       res.status(200).send({
         _id: user._id, 
         username: user.username, 

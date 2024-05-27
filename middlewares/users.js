@@ -12,12 +12,12 @@ const findAllUsers = async (req, res, next) => {
 }
 
 const createUser = async (req, res, next) => {
-  console.log("POST /users");
+  console.log("Creating user with data:", req.body);
   try {
-    console.log(req.body);
     req.user = await users.create(req.body);
     next();
   } catch (error) {
+    console.error("Error creating user:", error);
     res.setHeader("Content-Type", "application/json");
     res.status(400).send(JSON.stringify({ message: "Ошибка создания пользователя" }));
   }
@@ -38,14 +38,18 @@ const findUserById = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
-      // В метод передаём id из параметров запроса и объект с новыми свойствами
-    req.game = await games.findByIdAndUpdate(req.params.id, req.body);
+    // Обновление только полей name и email
+    const updateData = {};
+    if (req.body.username) updateData.username = req.body.username;
+    if (req.body.email) updateData.email = req.body.email;
+    
+    req.user = await users.findByIdAndUpdate(req.params.id, updateData, { new: true });
     next();
   } catch (error) {
     res.setHeader("Content-Type", "application/json");
     res.status(400).send(JSON.stringify({ message: "Ошибка обновления пользователя" }));
   }
-}; 
+};
 
 const deleteUser = async (req, res, next) => {
   try {
@@ -59,24 +63,20 @@ const deleteUser = async (req, res, next) => {
 };
 
 const checkIsUserExists = async (req, res, next) => {
-  // Среди существующих в базе категорий пытаемся найти категорию с тем же именем,
-  // с которым хотим создать новую категорию
-  const isInArray = req.usersArray.find((user) => {
-    return req.body.name === user.name;
-  });
-  // Если нашли совпадение, то отвечаем кодом 400 и сообщением
-  if (isInArray) {
+  const existingUser = await users.findOne({ username: req.body.username });
+  console.log("Existing user:", existingUser);
+  if (existingUser) {
     res.setHeader("Content-Type", "application/json");
-        res.status(400).send(JSON.stringify({ message: "Пользователь с таким названием уже существует" }));
+    res.status(400).send(JSON.stringify({ message: "Пользователь с таким названием уже существует" }));
   } else {
-  // Если категория, которую хотим создать, действительно новая, то передаём управление дальше
     next();
   }
 };
 
 
 const checkEmptyNameAndEmailAndPassword = async (req, res, next) => {
-  if (!req.body.name || !req.body.email || !req.body.password) {
+  console.log("Check for empty fields:", req.body);
+  if (!req.body.username || !req.body.email || !req.body.password) {
     res.setHeader("Content-Type", "application/json");
     res.status(400).send(JSON.stringify({ message: "Имя, email и пароль обязательны для заполнения" }));
   } else {
@@ -84,8 +84,8 @@ const checkEmptyNameAndEmailAndPassword = async (req, res, next) => {
   }
 };
 
-const checkEmptyNameAndEmail = async (req, res, next) => {
-  if (!req.body.name || !req.body.email) {
+const checkEmptyNameAndEmail = (req, res, next) => {
+  if (!req.body.username && !req.body.email) {
     res.setHeader("Content-Type", "application/json");
     res.status(400).send(JSON.stringify({ message: "Имя и email обязательны для заполнения" }));
   } else {
