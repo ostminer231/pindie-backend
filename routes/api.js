@@ -1,13 +1,14 @@
+const express = require('express');
+const authRouter = require("./auth");
+const categoriesRouter = require("./categories");
 const gamesRouter = require("./games");
 const usersRouter = require("./users");
-const categoriesRouter = require("./categories");
-const authRouter = require("./auth");
 
-const apiRouter = require("express").Router();
+const apiRouter = express.Router();
 
-apiRouter.use("/api", gamesRouter);
-apiRouter.use("/api", usersRouter);
-apiRouter.use("/api", categoriesRouter);
-apiRouter.use("/api", authRouter); // Добавляем роутер для аутентификации
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/users", usersRouter);
+apiRouter.use("/games", gamesRouter);
+apiRouter.use("/categories", categoriesRouter);
 
 module.exports = apiRouter;

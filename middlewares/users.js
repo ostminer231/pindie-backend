@@ -1,83 +1,116 @@
-const bcrypt = require("bcryptjs");
-const users = require("../models/user");
+// Файл middlewares/users.js
+
+// Импортируем модель
+const users = require('../models/user');
+const bcrypt = require("bcryptjs"); // Импортируем bcrypt 
+
 
 const findAllUsers = async (req, res, next) => {
-  console.log("GET /users");
+  // По GET-запросу на эндпоинт /users найдём все документы пользователей
   req.usersArray = await users.find({});
   next();
+}
+
+const createUser = async (req, res, next) => {
+  console.log("Creating user with data:", req.body);
+  try {
+    req.user = await users.create(req.body);
+    next();
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Ошибка создания пользователя" }));
+  }
 };
 
+// middlewares/users.js
 const findUserById = async (req, res, next) => {
   console.log("GET /users/:id");
   try {
     req.user = await users.findById(req.params.id);
     next();
   } catch (error) {
-    res.status(404).send({ message: "User not found" });
+    res.setHeader("Content-Type", "application/json");
+        res.status(404).send(JSON.stringify({ message: "Пользователь не найден" }));
   }
 };
 
-const checkEmptyNameAndEmail = async (req, res, next) => {
-  if (!req.body.username || !req.body.email) {
-    res.status(400).send({ message: "Введите имя и email" });
-  } else {
-    next();
-  }
-};
-
-const checkEmptyNameAndEmailAndPassword = async (req, res, next) => {
-  if (!req.body.username || !req.body.email || !req.body.password) {
-    res.status(400).send({ message: "Введите имя, email и пароль" });
-  } else {
-    next();
-  }
-};
-
-const checkIsUserExists = async (req, res, next) => {
-  const isInArray = req.usersArray.find((user) => {
-    return req.body.email === user.email;
-  });
-  if (isInArray) {
-    res.status(400).send({ message: "Пользователь с таким email уже существует" });
-  } else {
-    next();
-  }
-};
-
-const createUser = async (req, res, next) => {
-  console.log("POST /users");
-  try {
-    console.log(req.body);
-    req.user = await users.create(req.body);
-    next();
-  } catch (error) {
-    res.status(400).send({ message: "Error creating user" });
-  }
-};
 
 const updateUser = async (req, res, next) => {
-  console.log("PUT /users/:id");
   try {
-    req.user = await users.findByIdAndUpdate(req.params.id, req.body);
+    // Обновление только полей name и email
+    const updateData = {};
+    if (req.body.username) updateData.username = req.body.username;
+    if (req.body.email) updateData.email = req.body.email;
+    
+    req.user = await users.findByIdAndUpdate(req.params.id, updateData, { new: true });
     next();
   } catch (error) {
-    res.status(400).send({ message: "Error updating user" });
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Ошибка обновления пользователя" }));
   }
 };
 
 const deleteUser = async (req, res, next) => {
-  console.log("DELETE /users/:id");
   try {
+    // Методом findByIdAndDelete по id находим и удаляем документ из базы данных
     req.user = await users.findByIdAndDelete(req.params.id);
     next();
   } catch (error) {
-    res.status(400).send({ message: "Error deleting user" });
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Ошибка удаления пользователя" }));
   }
 };
 
+const checkIsUserExists = async (req, res, next) => {
+  const existingUser = await users.findOne({ username: req.body.username });
+  console.log("Existing user:", existingUser);
+  if (existingUser) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Пользователь с таким названием уже существует" }));
+  } else {
+    next();
+  }
+};
+
+
+const checkEmptyNameAndEmailAndPassword = async (req, res, next) => {
+  console.log("Check for empty fields:", req.body);
+  if (!req.body.username || !req.body.email || !req.body.password) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Имя, email и пароль обязательны для заполнения" }));
+  } else {
+    next();
+  }
+};
+
+const checkEmptyNameAndEmail = (req, res, next) => {
+  if (!req.body.username && !req.body.email) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(400).send(JSON.stringify({ message: "Имя и email обязательны для заполнения" }));
+  } else {
+    next();
+  }
+};
+
+const filterPassword = (req, res, next) => {
+  const filterUser = (user) => {
+    const { password, ...userWithoutPassword } = user.toObject();
+    return userWithoutPassword;
+  };
+  if (req.user) {
+    req.user = filterUser(req.user);
+  }
+  if (req.usersArray) {
+    req.usersArray = req.usersArray.map((user) => filterUser(user));
+  }
+  next();
+}; 
+
+
 const hashPassword = async (req, res, next) => {
   try {
-    // Создаем случайную строку длиной в десять символов
+    // Создаём случайную строку длиной в десять символов
     const salt = await bcrypt.genSalt(10);
     // Хешируем пароль
     const hash = await bcrypt.hash(req.body.password, salt);
@@ -87,16 +120,19 @@ const hashPassword = async (req, res, next) => {
   } catch (error) {
     res.status(400).send({ message: "Ошибка хеширования пароля" });
   }
-};
+}; 
 
+
+// Экспортируем функцию поиска всех пользователей
 module.exports = {
   findAllUsers,
-  findUserById,
   createUser,
+  findUserById,
   updateUser,
   deleteUser,
   checkIsUserExists,
-  checkEmptyNameAndEmail,
   checkEmptyNameAndEmailAndPassword,
+  checkEmptyNameAndEmail,
+  filterPassword,
   hashPassword
 };

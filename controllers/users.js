@@ -1,38 +1,39 @@
 const sendAllUsers = (req, res) => {
-  res.setHeader("Content-Type", "application/json");
+    // Установим заголовок ответа в формате JSON
+  res.setHeader('Content-Type', 'application/json');
+  // Отправим данные в виде JSON-объекта, 
+  // которые подготовим в миддлваре findAllCategories
   res.end(JSON.stringify(req.usersArray));
 };
+
+// controllers/users.js
+const sendUserCreated = (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(req.user));
+};
+
 
 const sendUserById = (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(req.user));
 };
 
-const sendUserCreated = (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(req.user));
-};
-
 const sendUserUpdated = (req, res) => {
   res.setHeader("Content-Type", "application/json");
-  res.end("User updated");
+  res.status(200).send(JSON.stringify({ message: "Пользователь обновлен" }));
 };
 
 const sendUserDeleted = (req, res) => {
+  // Объект игры отправляем в формате JSON 
   res.setHeader("Content-Type", "application/json");
+  // Отправляем на клиент найденный и удалённый элемент из базы данных
   res.end(JSON.stringify(req.user));
 };
 
 const sendMe = (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(req.user));
-};
+}; 
 
-module.exports = {
-  sendAllUsers,
-  sendUserById,
-  sendUserCreated,
-  sendUserUpdated,
-  sendUserDeleted,
-  sendMe
-};
+// Экспортируем контроллер
+module.exports = {sendAllUsers, sendUserCreated, sendUserById, sendUserUpdated, sendUserDeleted, sendMe};

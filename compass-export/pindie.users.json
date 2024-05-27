@@ -1,34 +1,18 @@
 [{
   "_id": {
-    "$oid": "6627ed74d037693ab7bc4a71"
+    "$oid": "6606b19ef99cd7a67132aaf6"
   },
   "username": "aski",
-  "email": "aski@example.ru",
-  "password": "1234qwer"
-},
-{
-  "_id": {
-    "$oid": "65ef1f358c121ad8a56dabb6"
-  },
-  "email": "test@test.ru",
-  "password": "1234",
-  "username": "nik"
-},
-{
-  "_id": {
-    "$oid": "66312d688ea9ad622368e3be"
-  },
-  "username": "nik",
-  "email": "pengu1n4ik.pi@yandex.ru",
-  "password": "12341234",
+  "email": "aski@example.com",
+  "password": "$2a$10$LgqW2yoQxJ6nDBaS8nfM3urShNcn0m95wgyES2lqLw2kXicCHyfmC",
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "66312d738ea9ad622368e3c1"
+    "$oid": "6606b3e0ba5b4c3fa4be6dd5"
   },
-  "username": "nik",
-  "email": "pengu1n4ik.pi@yandex.ru",
-  "password": "12341234",
+  "username": "Sobaka",
+  "email": "jav@example.com",
+  "password": "$2a$10$g6PgxfOv1p0xVAi1FCckRuolYB5ImwazvVVhNVisaoxDI9NuAE8oi",
   "__v": 0
 }]
