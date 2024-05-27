@@ -14,7 +14,7 @@ const PORT = 3000;
 connectToDatabase();
 
 app.use(cors({
-  origin: 'https://pindie-frontend.nomoredomainswork.ru',
+  origin: 'https://ostminer-frontend.nomoredomainswork.ru',
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
   allowedHeaders: 'Content-Type'
 }));
