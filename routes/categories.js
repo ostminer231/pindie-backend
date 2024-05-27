@@ -1,39 +1,41 @@
-const express = require('express');
-const categoriesRouter = express.Router();
+const categoriesRouter = require("express").Router();
+const { checkAuth } = require("../middlewares/auth.js");
 
-// Импортируем вспомогательные функции
-const { findAllCategories, createCategory, findCategoryById, updateCategory, deleteCategory, checkIsCategoryExists, checkEmptyName } = require('../middlewares/categories');
-const { sendAllCategories, sendCategoryCreated, sendCategoryById, sendCategoryUpdated, sendCategoryDeleted } = require('../controllers/categories');
-const { checkAuth } = require('../middlewares/auth');
+const {
+  findAllCategories,
+  createCategory,
+  findCategoryById,
+  updateCategory,
+  deleteCategory,
+  checkIsCategoryExists,
+  checkEmptyName
+} = require("../middlewares/categories.js");
+const {
+  sendAllCategories,
+  sendCategoryById,
+  sendCategoryCreated,
+  sendCategoryDeleted,
+  sendCategoryUpdated
+} = require("../controllers/categories.js");
 
-// Определение маршрутов
-categoriesRouter.get('/', findAllCategories, sendAllCategories);
-
+categoriesRouter.get("/categories", findAllCategories, sendAllCategories);
 categoriesRouter.post(
-    "/",
-    findAllCategories,
-    checkIsCategoryExists,
-    checkEmptyName,
-    checkAuth,
-    createCategory,
-    sendCategoryCreated
-  );
-categoriesRouter.get('/:id', findCategoryById, sendCategoryById);
-
+  "/categories",
+  findAllCategories,
+  checkIsCategoryExists,
+  checkEmptyName,
+  checkAuth,
+  createCategory,
+  sendCategoryCreated
+);
+categoriesRouter.get("/categories/:id", findCategoryById, sendCategoryById);
 categoriesRouter.put(
-    "/:id",
-    checkEmptyName,
-    checkAuth,
-    updateCategory,
-    sendCategoryUpdated
-  );
+  "/categories/:id",
+  checkEmptyName,
+  checkAuth,
+  updateCategory,
+  sendCategoryUpdated
+);
+categoriesRouter.delete("/categories/:id", checkAuth, deleteCategory, sendCategoryDeleted);
 
-  categoriesRouter.delete(
-    "/:id",
-    checkAuth,
-    deleteCategory,
-    sendCategoryDeleted
-  ); 
-
-// Экспортируем роут для использования в приложении — app.js
 module.exports = categoriesRouter;
